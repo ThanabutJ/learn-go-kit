@@ -1,8 +1,7 @@
-package stringsvc
+package main
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -28,7 +27,3 @@ func (stringService) Count(s string) int {
 }
 
 var ErrEmpty = errors.New("Empty string")
-
-func run() {
-	fmt.Printf("stringsvc")
-}

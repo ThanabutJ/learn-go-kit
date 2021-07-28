@@ -1,33 +1,31 @@
-package stringsvc
+package main
 
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
-	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/kit/endpoint"
 )
 
-func Start() {
-	svc := stringService{}
+func makeUppercaseEndpoint(svc StringService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(uppercaseRequest)
+		v, err := svc.Uppercase(req.S)
+		if err != nil {
+			return nil, err
+		}
 
-	uppercaseHandler := httptransport.NewServer(
-		makeUppercaseEndpoint(svc),
-		decodeUppercaseRequest,
-		encodeResponse,
-	)
+		return uppercaseResponse{v, ""}, nil
+	}
+}
 
-	countHandler := httptransport.NewServer(
-		makeCountEndpoint(svc),
-		decodeCountRequest,
-		encodeResponse,
-	)
-
-	http.Handle("/uppercase", uppercaseHandler)
-	http.Handle("/count", countHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
-
+func makeCountEndpoint(svc StringService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(countRequest)
+		v := svc.Count(req.S)
+		return countRepsonse{v}, nil
+	}
 }
 
 func decodeUppercaseRequest(_ context.Context, r *http.Request) (interface{}, error) {
