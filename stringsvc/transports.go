@@ -9,7 +9,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func start() {
+func Start() {
 	svc := stringService{}
 
 	uppercaseHandler := httptransport.NewServer(
@@ -24,7 +24,7 @@ func start() {
 		encodeResponse,
 	)
 
-	http.Handle("/upppercase", uppercaseHandler)
+	http.Handle("/uppercase", uppercaseHandler)
 	http.Handle("/count", countHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
