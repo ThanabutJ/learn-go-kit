@@ -42,7 +42,7 @@ func proxyingMidleware(ctx context.Context, instances string, logger log.Logger)
 		var e endpoint.Endpoint
 		e = makeUppercasePoxy(ctx, instance)
 		e = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(e)
-		e = ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), gps))(e)
+		e = ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), qps))(e)
 		endpointer = append(endpointer, e)
 	}
 
@@ -50,15 +50,18 @@ func proxyingMidleware(ctx context.Context, instances string, logger log.Logger)
 	retry := lb.Retry(maxAttempts, maxTime, balancer)
 
 	return func(next StringService) StringService {
-		return proxymw(ctx, next, retry)
-
+		return proxymw{ctx, next, retry}
 	}
 }
 
 type proxymw struct {
 	ctx       context.Context
-	next      stringService
+	next      StringService
 	uppercase endpoint.Endpoint
+}
+
+func (mw proxymw) Count(s string) int {
+	return mw.next.Count(s)
 }
 
 func (mw proxymw) Uppercase(s string) (string, error) {
