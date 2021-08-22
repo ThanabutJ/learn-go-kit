@@ -1,0 +1,4 @@
+./stringsvc3 -listen=:8001 &
+./stringsvc3 -listen=:8002 &
+./stringsvc3 -listen=:8003 &
+./stringsvc3 -listen=:8080 -proxy=localhost:8001,localhost:8002,localhost:8003

@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// StringService interface
 type StringService interface {
 	Uppercase(string) (string, error)
 	Count(string) int
@@ -23,4 +24,8 @@ func (stringService) Count(s string) int {
 	return len(s)
 }
 
+// ErrEmpty error
 var ErrEmpty = errors.New("empty string")
+
+// ServiceMiddleware is a chainable behavior modifier for StringService
+type ServiceMiddleware func(StringService) StringService
